@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>畢業學分檢視表</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f6f8;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+    }
+    .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    h1, h2 {
+        text-align: center;
+        color: #2c3e50;
+    }
+    .summary-box {
+        display: flex;
+        justify-content: space-around;
+        background-color: #e8f4f8;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+    .summary-box div {
+        text-align: center;
+    }
+    .number {
+        display: block;
+        font-size: 1.8em;
+        color: #e74c3c;
+        margin-top: 10px;
+    }
+    .number.green {
+        color: #27ae60;
+    }
+    .accordion {
+        background-color: #ecf0f1;
+        color: #2c3e50;
+        cursor: pointer;
+        padding: 18px;
+        width: 100%;
+        text-align: left;
+        border: none;
+        outline: none;
+        transition: 0.3s;
+        font-size: 1.1em;
+        font-weight: bold;
+        border-radius: 5px;
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+    .accordion.active, .accordion:hover {
+        background-color: #d5dbdb;
+    }
+    .panel {
+        padding: 0 18px;
+        background-color: white;
+        display: none;
+        overflow: hidden;
+        border-left: 2px solid #bdc3c7;
+        border-right: 2px solid #bdc3c7;
+        border-bottom: 2px solid #bdc3c7;
+        border-radius: 0 0 5px 5px;
+        margin-bottom: 10px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: center;
+        color: black; /* 依據需求：黑色是修畢的課程和目前學分數 */
+    }
+    th {
+        background-color: #f9f9f9;
+        font-weight: bold;
+    }
+    .add-course-container {
+        margin-top: 40px;
+        padding: 25px;
+        background-color: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+    }
+    .add-course-container h3 {
+        margin-top: 0;
+        color: #34495e;
+    }
+    .form-row {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+    .form-group {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 150px;
+    }
+    .form-group label {
+        margin-bottom: 8px;
+        font-weight: bold;
+        font-size: 0.9em;
+    }
+    .form-group input, .form-group select {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1em;
+    }
+    .btn {
+        background-color: #3498db;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        font-weight: bold;
+        margin-top: 10px;
+        transition: 0.3s;
+    }
+    .btn:hover {
+        background-color: #2980b9;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>輔仁大學企管系 畢業學分檢視表</h1>
+    
+    <div class="summary-box">
+        <div>
+            畢業應修總學分
+            <span class="number">134</span>
+        </div>
+        <div>
+            目前已修學分數
+            <span class="number green" id="total-credits">0</span>
+        </div>
+        <div>
+            尚需修習學分數
+            <span class="number" id="remaining-credits">0</span>
+        </div>
+    </div>
+
+    <div id="categories-container">
+        <!-- JS will populate accordions here -->
+    </div>
+
+    <div class="add-course-container">
+        <h3>新增自行修習課程</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="course-category">課程類別</label>
+                <select id="course-category">
+                    <option value="校定必修">校定必修</option>
+                    <option value="院基礎">院基礎</option>
+                    <option value="系定必修">系定必修</option>
+                    <option value="專業選修">專業選修</option>
+                    <option value="通識">通識</option>
+                    <option value="其他選修">其他選修</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="course-semester">學年/學期 (例: 大一上)</label>
+                <input type="text" id="course-semester" placeholder="大四下">
+            </div>
+            <div class="form-group">
+                <label for="course-name">課程名稱</label>
+                <input type="text" id="course-name" placeholder="請輸入課程名稱">
+            </div>
+            <div class="form-group">
+                <label for="course-credits">學分數</label>
+                <input type="number" id="course-credits" min="0" step="1" value="2">
+            </div>
+        </div>
+        <button class="btn" onclick="addCourse()">新增課程</button>
+    </div>
+</div>
+
+<script>
+    // 初始資料載入 (從 Excel 匯入的資料)
+    let coursesData = [
+  { "category": "校定必修", "semester": "大一上", "name": "國文", "credits": 2.0 },
+  { "category": "院基礎", "semester": "大一上", "name": "初級會計", "credits": 3.0 },
+  { "category": "通識", "semester": "大一上", "name": "當代生物醫學課題", "credits": 2.0 },
+  { "category": "校定必修", "semester": "大一上", "name": "英文", "credits": 2.0 },
+  { "category": "院基礎", "semester": "大一上", "name": "經濟學", "credits": 3.0 },
+  { "category": "通識", "semester": "大一上", "name": "健康與生活", "credits": 2.0 },
+  { "category": "校定必修", "semester": "大一上", "name": "大學入門", "credits": 2.0 },
+  { "category": "院基礎", "semester": "大一上", "name": "微積分", "credits": 3.0 },
+  { "category": "校定必修", "semester": "大一上", "name": "體育", "credits": 0.0 },
+  { "category": "院基礎", "semester": "大一上", "name": "程式設計", "credits": 3.0 },
+  { "category": "通識", "semester": "大一上", "name": "樂曲中的台灣（歷史）", "credits": 2.0 },
+  { "category": "校定必修", "semester": "大一上", "name": "國防", "credits": 0.0 },
+  { "category": "通識", "semester": "大一上", "name": "設計與文化藝術賞析", "credits": 2.0 },
+  { "category": "通識", "semester": "大一下", "name": "日本社會與文化（歷史）", "credits": 2.0 },
+  { "category": "校定必修", "semester": "大一下", "name": "國文", "credits": 2.0 },
+  { "category": "院基礎", "semester": "大一下", "name": "初級會計", "credits": 3.0 },
+  { "category": "校定必修", "semester": "大一下", "name": "英文", "credits": 2.0 },
+  { "category": "院基礎", "semester": "大一下", "name": "經濟學", "credits": 3.0 },
+  { "category": "校定必修", "semester": "大一下", "name": "體育", "credits": 0.0 },
+  { "category": "院基礎", "semester": "大一下", "name": "微積分", "credits": 3.0 },
+  { "category": "校定必修", "semester": "大一下", "name": "國防", "credits": 0.0 },
+  { "category": "院基礎", "semester": "大一下", "name": "大學入門", "credits": 3.0 },
+  { "category": "校定必修", "semester": "大二上", "name": "二外-進階日文", "credits": 2.0 },
+  { "category": "院基礎", "semester": "大二上", "name": "統計學", "credits": 3.0 },
+  { "category": "系定必修", "semester": "大二上", "name": "管理學（英）", "credits": 3.0 },
+  { "category": "專業選修", "semester": "大二上", "name": "中級會計", "credits": 3.0 },
+  { "category": "校定必修", "semester": "大二上", "name": "體育（體適能）", "credits": 0.0 },
+  { "category": "系定必修", "semester": "大二上", "name": "行銷管理", "credits": 3.0 },
+  { "category": "校定必修", "semester": "大二下", "name": "二外-進階日文", "credits": 2.0 },
+  { "category": "院基礎", "semester": "大二下", "name": "統計學", "credits": 3.0 },
+  { "category": "系定必修", "semester": "大二下", "name": "管理數學（英）", "credits": 3.0 },
+  { "category": "專業選修", "semester": "大二下", "name": "中級會計", "credits": 3.0 },
+  { "category": "校定必修", "semester": "大二下", "name": "體育（排球）", "credits": 0.0 },
+  { "category": "系定必修", "semester": "大二下", "name": "人力資源管理", "credits": 3.0 },
+  { "category": "系定必修", "semester": "大二下", "name": "財務管理", "credits": 3.0 },
+  { "category": "系定必修", "semester": "大二下", "name": "作業管理（英）", "credits": 3.0 },
+  { "category": "系定必修", "semester": "大二下", "name": "商事法", "credits": 3.0 },
+  { "category": "校定必修", "semester": "大三上", "name": "人生哲學", "credits": 2.0 },
+  { "category": "系定必修", "semester": "大三上", "name": "成本會計", "credits": 2.0 },
+  { "category": "專業選修", "semester": "大三上", "name": "電子商務", "credits": 3.0 },
+  { "category": "專業選修", "semester": "大三上", "name": "人力規劃與選才", "credits": 3.0 },
+  { "category": "專業選修", "semester": "大三上", "name": "消費者行為", "credits": 3.0 },
+  { "category": "其他選修", "semester": "大三上", "name": "運動心理學", "credits": 3.0 },
+  { "category": "校定必修", "semester": "大三下", "name": "人生哲學", "credits": 2.0 },
+  { "category": "系定必修", "semester": "大三下", "name": "管理會計", "credits": 2.0 },
+  { "category": "專業選修", "semester": "大三下", "name": "產業管理研討", "credits": 3.0 },
+  { "category": "系定必修", "semester": "大三下", "name": "企業專題（一）", "credits": 2.0 },
+  { "category": "專業選修", "semester": "大三下", "name": "組織與社會發展", "credits": 3.0 },
+  { "category": "系定必修", "semester": "大三下", "name": "資訊管理（英）", "credits": 3.0 },
+  { "category": "專業選修", "semester": "大三下", "name": "推廣策略", "credits": 3.0 },
+  { "category": "系定必修", "semester": "大四上", "name": "企業政策", "credits": 3.0 },
+  { "category": "系定必修", "semester": "大四上", "name": "企業專題（二）", "credits": 2.0 },
+  { "category": "校定必修", "semester": "大四下", "name": "企業倫理", "credits": 2.0 }
+    ];
+
+    const categories = ["校定必修", "院基礎", "系定必修", "專業選修", "通識", "其他選修"];
+    const TOTAL_REQUIRED = 134;
+
+    function renderUI() {
+        const container = document.getElementById("categories-container");
+        container.innerHTML = "";
+        
+        let totalCredits = 0;
+
+        categories.forEach(cat => {
+            // 過濾該分類的課程
+            const catCourses = coursesData.filter(c => c.category === cat);
+            
+            // 計算該分類的學分小計
+            const catCredits = catCourses.reduce((sum, c) => sum + parseFloat(c.credits), 0);
+            totalCredits += catCredits;
+
+            // 建立手風琴按鈕
+            const btn = document.createElement("button");
+            btn.className = "accordion";
+            btn.innerHTML = `<span>${cat}</span> <span>小計: ${catCredits} 學分</span>`;
+            
+            // 建立面板
+            const panel = document.createElement("div");
+            panel.className = "panel";
+            
+            if (catCourses.length > 0) {
+                let tableHTML = `<table>
+                                    <thead>
+                                        <tr>
+                                            <th>學年/學期</th>
+                                            <th>課程名稱</th>
+                                            <th>學分數</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
+                catCourses.forEach((c, index) => {
+                    // 找出該筆資料在總陣列中的真實 index，以便刪除
+                    const realIndex = coursesData.indexOf(c);
+                    tableHTML += `<tr>
+                                    <td>${c.semester}</td>
+                                    <td>${c.name}</td>
+                                    <td>${c.credits}</td>
+                                    <td><button onclick="removeCourse(${realIndex})" style="color:red; background:none; border:none; cursor:pointer;">刪除</button></td>
+                                  </tr>`;
+                });
+                tableHTML += `</tbody></table>`;
+                panel.innerHTML = tableHTML;
+            } else {
+                panel.innerHTML = `<p style="text-align:center; padding: 15px; color:#7f8c8d;">尚無修習紀錄</p>`;
+            }
+
+            container.appendChild(btn);
+            container.appendChild(panel);
+
+            // 綁定點擊事件
+            btn.addEventListener("click", function() {
+                this.classList.toggle("active");
+                const panel = this.nextElementSibling;
+                if (panel.style.display === "block") {
+                    panel.style.display = "none";
+                } else {
+                    panel.style.display = "block";
+                }
+            });
+        });
+
+        // 更新總計
+        document.getElementById("total-credits").innerText = totalCredits;
+        const remaining = TOTAL_REQUIRED - totalCredits;
+        document.getElementById("remaining-credits").innerText = remaining > 0 ? remaining : 0;
+    }
+
+    function addCourse() {
+        const cat = document.getElementById("course-category").value;
+        const sem = document.getElementById("course-semester").value;
+        const name = document.getElementById("course-name").value;
+        const cred = parseFloat(document.getElementById("course-credits").value);
+
+        if (!sem || !name || isNaN(cred)) {
+            alert("請完整填寫所有欄位！");
+            return;
+        }
+
+        coursesData.push({
+            category: cat,
+            semester: sem,
+            name: name,
+            credits: cred
+        });
+
+        // 清空輸入框
+        document.getElementById("course-semester").value = "";
+        document.getElementById("course-name").value = "";
+        document.getElementById("course-credits").value = "2";
+
+        renderUI();
+    }
+
+    function removeCourse(index) {
+        if (confirm("確定要刪除這筆紀錄嗎？")) {
+            coursesData.splice(index, 1);
+            renderUI();
+        }
+    }
+
+    // 初始渲染
+    renderUI();
+</script>
+
+</body>
+</html>
