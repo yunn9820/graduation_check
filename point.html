@@ -4,54 +4,267 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>畢業學分檢核表</title>
-<link rel="stylesheet" href="assets/styles.css">
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f6f8;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+    }
+    .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    h1, h2 {
+        text-align: center;
+        color: #2c3e50;
+    }
+    .summary-box {
+        display: flex;
+        justify-content: space-around;
+        background-color: #e8f4f8;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+    .summary-box div {
+        text-align: center;
+    }
+    .number {
+        display: block;
+        font-size: 1.8em;
+        color: #e74c3c;
+        margin-top: 10px;
+    }
+    .number.green {
+        color: #27ae60;
+    }
+    .req-box {
+        background-color: #fff9e6;
+        border-left: 5px solid #f1c40f;
+        padding: 20px;
+        border-radius: 5px;
+        margin-bottom: 25px;
+    }
+    .req-box h3 {
+        margin-top: 0;
+        color: #d35400;
+    }
+    .req-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .req-list li {
+        margin-bottom: 10px;
+        font-size: 1.05em;
+        padding-bottom: 5px;
+        border-bottom: 1px dashed #ccc;
+    }
+    .req-list li:last-child {
+        border-bottom: none;
+    }
+    .status-ok {
+        color: #27ae60;
+        font-weight: bold;
+    }
+    .status-missing {
+        color: #e74c3c;
+        font-weight: bold;
+    }
+    .accordion {
+        background-color: #ecf0f1;
+        color: #2c3e50;
+        cursor: pointer;
+        padding: 18px;
+        width: 100%;
+        text-align: left;
+        border: none;
+        outline: none;
+        transition: 0.3s;
+        font-size: 1.1em;
+        font-weight: bold;
+        border-radius: 5px;
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+    .accordion.active, .accordion:hover {
+        background-color: #d5dbdb;
+    }
+    .panel {
+        padding: 0 18px;
+        background-color: white;
+        display: none;
+        overflow: hidden;
+        border-left: 2px solid #bdc3c7;
+        border-right: 2px solid #bdc3c7;
+        border-bottom: 2px solid #bdc3c7;
+        border-radius: 0 0 5px 5px;
+        margin-bottom: 10px;
+    }
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+        min-width: 500px; /* 確保表格在小螢幕上不會擠在一起 */
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: center;
+        color: black;
+    }
+    th {
+        background-color: #f9f9f9;
+        font-weight: bold;
+    }
+    .uncompleted td {
+        color: #e74c3c !important;
+    }
+    .add-course-container {
+        margin-top: 40px;
+        padding: 25px;
+        background-color: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+    }
+    .add-course-container h3 {
+        margin-top: 0;
+        color: #34495e;
+    }
+    .form-row {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+    .form-group {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 150px;
+    }
+    .form-group label {
+        margin-bottom: 8px;
+        font-weight: bold;
+        font-size: 0.9em;
+    }
+    .form-group input, .form-group select {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1em;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .btn {
+        background-color: #3498db;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        font-weight: bold;
+        margin-top: 10px;
+        transition: 0.3s;
+        width: 100%;
+    }
+    .btn:hover {
+        background-color: #2980b9;
+    }
+
+    /* 手機版 RWD 響應式設計 */
+    @media (max-width: 768px) {
+        body {
+            padding: 10px;
+        }
+        .container {
+            padding: 15px;
+        }
+        h1 {
+            font-size: 1.5em;
+        }
+        .summary-box {
+            flex-direction: column;
+            gap: 15px;
+            padding: 15px;
+        }
+        .summary-box div {
+            padding: 10px 0;
+            border-bottom: 1px solid #d5e8ed;
+        }
+        .summary-box div:last-child {
+            border-bottom: none;
+        }
+        .accordion {
+            font-size: 1em;
+            padding: 15px;
+            flex-direction: column;
+            gap: 5px;
+            text-align: left;
+        }
+        .accordion span:last-child {
+            font-size: 0.9em;
+            color: #555;
+        }
+        .form-group {
+            flex: 1 1 100%;
+        }
+    }
+</style>
 </head>
 <body>
-<header class="site-header">
-  <h1>畢業學分檢核表</h1>
-</header>
-<main class="container" id="app">
-    <section aria-labelledby="summary-heading" class="summary-section">
-        <h2 id="summary-heading" class="visually-hidden">總覽</h2>
-        <div class="summary-box">
-            <div>
-                畢業應修總學分
-                <span class="number" id="required-credits">134</span>
-            </div>
-            <div>
-                目前已修畢學分數
-                <span class="number green" id="total-credits">0</span>
-            </div>
-            <div>
-                尚需修習學分數
-                <span class="number" id="remaining-credits">0</span>
-            </div>
+
+<div class="container">
+    <h1>畢業學分檢核表</h1>
+    
+    <div class="summary-box">
+        <div>
+            畢業應修總學分
+            <span class="number">134</span>
         </div>
-        <div class="progress-wrapper" aria-hidden="false">
-          <div class="progress-label">完成進度</div>
-          <div class="progress-bar" aria-hidden="true">
-            <div id="progress-fill" class="progress-fill" style="width:0%"></div>
-          </div>
+        <div>
+            目前已修畢學分數
+            <span class="number green" id="total-credits">0</span>
         </div>
-    </section>
+        <div>
+            尚需修習學分數
+            <span class="number" id="remaining-credits">0</span>
+        </div>
+    </div>
 
-    <section class="req-box" aria-labelledby="rules-heading">
-        <h2 id="rules-heading">🎯 修業規則達成狀況</h2>
-        <ul class="req-list" id="req-list" aria-live="polite"></ul>
-    </section>
+    <!-- 檢視修業規則 -->
+    <div class="req-box">
+        <h3>🎯 修業規則達成狀況</h3>
+        <ul class="req-list" id="req-list">
+            <!-- JS dynamically injects rules here -->
+        </ul>
+    </div>
 
-    <section id="categories-container" aria-labelledby="categories-heading">
-      <h2 id="categories-heading" class="visually-hidden">課程類別</h2>
-      <!-- JS will populate accordions here -->
-    </section>
+    <div id="categories-container">
+        <!-- JS will populate accordions here -->
+    </div>
 
-    <section class="add-course-container" aria-labelledby="add-course-heading">
-        <h2 id="add-course-heading">新增自行修習課程</h2>
-        <form id="add-course-form">
+    <div class="add-course-container">
+        <h3>新增自行修習課程</h3>
         <div class="form-row">
             <div class="form-group">
                 <label for="course-category">課程類別</label>
-                <select id="course-category" name="category">
+                <select id="course-category">
                     <option value="校定必修">校定必修</option>
                     <option value="院基礎">院基礎</option>
                     <option value="系定必修">系定必修</option>
@@ -62,33 +275,291 @@
             </div>
             <div class="form-group">
                 <label for="course-semester">學年/學期</label>
-                <input type="text" id="course-semester" name="semester" placeholder="大四下">
+                <input type="text" id="course-semester" placeholder="大四下">
             </div>
             <div class="form-group">
                 <label for="course-name">課程名稱</label>
-                <input type="text" id="course-name" name="name" placeholder="請輸入課程名稱">
+                <input type="text" id="course-name" placeholder="請輸入課程名稱">
             </div>
             <div class="form-group">
                 <label for="course-credits">學分數</label>
-                <input type="number" id="course-credits" name="credits" min="0" step="0.5" value="2">
+                <input type="number" id="course-credits" min="0" step="1" value="2">
             </div>
             <div class="form-group">
                 <label for="course-status">狀態</label>
-                <select id="course-status" name="status">
+                <select id="course-status">
                     <option value="已修畢">已修畢</option>
                     <option value="未修畢">未修畢</option>
                 </select>
             </div>
         </div>
-        <div class="form-row">
-          <button type="submit" id="add-course-btn" class="btn">新增課程</button>
-          <button type="button" id="export-btn" class="btn btn-secondary">匯出 JSON</button>
-          <button type="button" id="import-btn" class="btn btn-secondary">匯入 JSON</button>
-        </div>
-        </form>
-    </section>
-</main>
+        <button class="btn" onclick="addCourse()">新增課程</button>
+    </div>
+</div>
 
-<script src="assets/point.js" defer></script>
+<script>
+    // 課程資料
+    let coursesData = [
+  { "category": "校定必修", "semester": "大一上", "name": "國文", "credits": 2.0, "status": "已修畢" },
+  { "category": "院基礎", "semester": "大一上", "name": "初級會計", "credits": 3.0, "status": "已修畢" },
+  { "category": "通識", "semester": "大一上", "name": "當代生物醫學課題", "credits": 2.0, "status": "已修畢" },
+  { "category": "校定必修", "semester": "大一上", "name": "英文", "credits": 2.0, "status": "已修畢" },
+  { "category": "院基礎", "semester": "大一上", "name": "經濟學", "credits": 3.0, "status": "已修畢" },
+  { "category": "通識", "semester": "大一上", "name": "健康與生活", "credits": 2.0, "status": "已修畢" },
+  { "category": "校定必修", "semester": "大一上", "name": "大學入門", "credits": 2.0, "status": "已修畢" },
+  { "category": "院基礎", "semester": "大一上", "name": "微積分", "credits": 3.0, "status": "已修畢" },
+  { "category": "校定必修", "semester": "大一上", "name": "體育", "credits": 0.0, "status": "已修畢" },
+  { "category": "院基礎", "semester": "大一上", "name": "程式設計", "credits": 3.0, "status": "已修畢" },
+  { "category": "通識", "semester": "大一上", "name": "樂曲中的台灣（歷史）", "credits": 2.0, "status": "已修畢" },
+  { "category": "校定必修", "semester": "大一上", "name": "國防", "credits": 0.0, "status": "已修畢" },
+  { "category": "通識", "semester": "大一上", "name": "設計與文化藝術賞析", "credits": 2.0, "status": "已修畢" },
+  { "category": "通識", "semester": "大一下", "name": "日本社會與文化（歷史）", "credits": 2.0, "status": "已修畢" },
+  { "category": "校定必修", "semester": "大一下", "name": "國文", "credits": 2.0, "status": "已修畢" },
+  { "category": "院基礎", "semester": "大一下", "name": "初級會計", "credits": 3.0, "status": "已修畢" },
+  { "category": "校定必修", "semester": "大一下", "name": "英文", "credits": 2.0, "status": "已修畢" },
+  { "category": "院基礎", "semester": "大一下", "name": "經濟學", "credits": 3.0, "status": "已修畢" },
+  { "category": "校定必修", "semester": "大一下", "name": "體育", "credits": 0.0, "status": "已修畢" },
+  { "category": "院基礎", "semester": "大一下", "name": "微積分", "credits": 3.0, "status": "已修畢" },
+  { "category": "校定必修", "semester": "大一下", "name": "國防", "credits": 0.0, "status": "已修畢" },
+  { "category": "院基礎", "semester": "大一下", "name": "大學入門", "credits": 3.0, "status": "已修畢" }, 
+  { "category": "校定必修", "semester": "大二上", "name": "二外-進階日文", "credits": 2.0, "status": "已修畢" },
+  { "category": "院基礎", "semester": "大二上", "name": "統計學", "credits": 3.0, "status": "已修畢" },
+  { "category": "系定必修", "semester": "大二上", "name": "管理學（英）", "credits": 3.0, "status": "已修畢" },
+  { "category": "其他選修", "semester": "大二上", "name": "中級會計", "credits": 3.0, "status": "已修畢" },
+  { "category": "校定必修", "semester": "大二上", "name": "體育（體適能）", "credits": 0.0, "status": "已修畢" },
+  { "category": "系定必修", "semester": "大二上", "name": "行銷管理", "credits": 3.0, "status": "已修畢" },
+  { "category": "校定必修", "semester": "大二下", "name": "二外-進階日文", "credits": 2.0, "status": "已修畢" },
+  { "category": "院基礎", "semester": "大二下", "name": "統計學", "credits": 3.0, "status": "已修畢" },
+  { "category": "系定必修", "semester": "大二下", "name": "管理數學（英）", "credits": 3.0, "status": "已修畢" },
+  { "category": "其他選修", "semester": "大二下", "name": "中級會計", "credits": 3.0, "status": "已修畢" },
+  { "category": "校定必修", "semester": "大二下", "name": "體育（排球）", "credits": 0.0, "status": "已修畢" },
+  { "category": "系定必修", "semester": "大二下", "name": "人力資源管理", "credits": 3.0, "status": "已修畢" },
+  { "category": "系定必修", "semester": "大二下", "name": "財務管理", "credits": 3.0, "status": "已修畢" },
+  { "category": "系定必修", "semester": "大二下", "name": "作業管理（英）", "credits": 3.0, "status": "已修畢" },
+  { "category": "系定必修", "semester": "大二下", "name": "商事法", "credits": 3.0, "status": "已修畢" },
+  { "category": "校定必修", "semester": "大三上", "name": "人生哲學", "credits": 2.0, "status": "已修畢" },
+  { "category": "系定必修", "semester": "大三上", "name": "成本會計", "credits": 2.0, "status": "已修畢" },
+  { "category": "核心/模組", "semester": "大三上", "name": "電子商務 (核心)", "credits": 3.0, "status": "已修畢" },
+  { "category": "其他選修", "semester": "大三上", "name": "人力規劃與選才", "credits": 3.0, "status": "已修畢" },
+  { "category": "核心/模組", "semester": "大三上", "name": "消費者行為 (核心)", "credits": 3.0, "status": "已修畢" },
+  { "category": "其他選修", "semester": "大三上", "name": "運動心理學", "credits": 3.0, "status": "已修畢" },
+  { "category": "校定必修", "semester": "大三下", "name": "人生哲學", "credits": 2.0, "status": "已修畢" },
+  { "category": "系定必修", "semester": "大三下", "name": "管理會計", "credits": 2.0, "status": "已修畢" },
+  { "category": "核心/模組", "semester": "大三下", "name": "產業管理研討 (模組)", "credits": 3.0, "status": "已修畢" },
+  { "category": "系定必修", "semester": "大三下", "name": "企業專題（一）", "credits": 2.0, "status": "已修畢" },
+  { "category": "核心/模組", "semester": "大三下", "name": "組織與社會發展 (模組)", "credits": 3.0, "status": "已修畢" },
+  { "category": "系定必修", "semester": "大三下", "name": "資訊管理（英）", "credits": 3.0, "status": "已修畢" },
+  { "category": "核心/模組", "semester": "大三下", "name": "推廣策略 (核心)", "credits": 3.0, "status": "已修畢" },
+  { "category": "系定必修", "semester": "大四上", "name": "企業政策", "credits": 3.0, "status": "未修畢" },
+  { "category": "系定必修", "semester": "大四上", "name": "企業專題（二）", "credits": 2.0, "status": "未修畢" },
+  { "category": "校定必修", "semester": "大四下", "name": "企業倫理", "credits": 2.0, "status": "未修畢" }
+    ];
+
+    const categories = ["校定必修", "院基礎", "系定必修", "核心/模組", "通識", "其他選修"];
+    const TOTAL_REQUIRED = 134;
+
+    function renderUI() {
+        const container = document.getElementById("categories-container");
+        container.innerHTML = "";
+        
+        let totalCompletedCredits = 0;
+        
+        // 紀錄各類別已修畢學分，用於判斷修業規則
+        let creditsMap = {
+            "校定必修": 0, "院基礎": 0, "系定必修": 0, "核心/模組": 0, "通識": 0, "其他選修": 0
+        };
+
+        // 計算通識細項 (使用名稱簡單判斷，若新增會依照名稱關鍵字)
+        let genEd = {
+            nature: 0, humanities: 0, social: 0, history: 0
+        };
+        
+        let englishCoursesCount = 0;
+
+        coursesData.forEach(c => {
+            if (c.status === "已修畢") {
+                creditsMap[c.category] += parseFloat(c.credits);
+                totalCompletedCredits += parseFloat(c.credits);
+                
+                // 判斷全英課程
+                if (c.name.includes("英") && (c.category === "系定必修" || c.category === "核心/模組" || c.category === "專業選修" || c.category === "其他選修")) {
+                    englishCoursesCount++;
+                }
+
+                // 判斷通識領域
+                if (c.category === "通識") {
+                    if (c.name.includes("當代生物醫學") || c.name.includes("健康與生活") || c.name.includes("自然")) genEd.nature += parseFloat(c.credits);
+                    if (c.name.includes("設計與文化") || c.name.includes("樂曲") || c.name.includes("人文")) genEd.humanities += parseFloat(c.credits);
+                    if (c.name.includes("日本社會") || c.name.includes("社會")) genEd.social += parseFloat(c.credits);
+                    if (c.name.includes("歷史")) genEd.history += parseFloat(c.credits);
+                }
+            }
+        });
+
+        // 渲染折疊面板
+        categories.forEach(cat => {
+            const catCourses = coursesData.filter(c => c.category === cat);
+            const catCompletedCredits = creditsMap[cat];
+
+            const btn = document.createElement("button");
+            btn.className = "accordion";
+            btn.innerHTML = `<span>${cat}</span> <span>已修畢小計: ${catCompletedCredits} 學分</span>`;
+            
+            const panel = document.createElement("div");
+            panel.className = "panel";
+            
+            if (catCourses.length > 0) {
+                let tableHTML = `<div class="table-responsive">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>學年/學期</th>
+                                                <th>課程名稱</th>
+                                                <th>學分數</th>
+                                                <th>狀態</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>`;
+                catCourses.forEach((c) => {
+                    const realIndex = coursesData.indexOf(c);
+                    const rowClass = c.status === "未修畢" ? "uncompleted" : "";
+                    tableHTML += `<tr class="${rowClass}">
+                                    <td>${c.semester}</td>
+                                    <td>${c.name}</td>
+                                    <td>${c.credits}</td>
+                                    <td>${c.status}</td>
+                                    <td><button onclick="removeCourse(${realIndex})" style="color:gray; background:none; border:none; cursor:pointer;">刪除</button></td>
+                                  </tr>`;
+                });
+                tableHTML += `</tbody></table></div>`;
+                panel.innerHTML = tableHTML;
+            } else {
+                panel.innerHTML = `<p style="text-align:center; padding: 15px; color:#7f8c8d;">尚無紀錄</p>`;
+            }
+
+            container.appendChild(btn);
+            container.appendChild(panel);
+
+            btn.addEventListener("click", function() {
+                this.classList.toggle("active");
+                const panel = this.nextElementSibling;
+                if (panel.style.display === "block") {
+                    panel.style.display = "none";
+                } else {
+                    panel.style.display = "block";
+                }
+            });
+        });
+
+        // 更新總計
+        document.getElementById("total-credits").innerText = totalCompletedCredits;
+        const remaining = TOTAL_REQUIRED - totalCompletedCredits;
+        document.getElementById("remaining-credits").innerText = remaining > 0 ? remaining : 0;
+
+        // 更新修業規則達成狀況
+        updateRequirements(creditsMap, genEd, englishCoursesCount, remaining);
+    }
+
+    function updateRequirements(creditsMap, genEd, englishCoursesCount, remainingTotal) {
+        const reqList = document.getElementById("req-list");
+        reqList.innerHTML = ""; // Clear existing
+
+        // 1. 校定必修 (20學分)
+        const schoolReq = 20;
+        let schoolStatus = creditsMap["校定必修"] >= schoolReq 
+            ? `<span class="status-ok">已達成 (${creditsMap["校定必修"]}/${schoolReq})</span>` 
+            : `<span class="status-missing">尚缺 ${schoolReq - creditsMap["校定必修"]} 學分 (加上大四未修畢學分即可達成)</span>`;
+        reqList.innerHTML += `<li><strong>校定必修：</strong> ${schoolStatus}</li>`;
+
+        // 2. 院基礎 (30學分)
+        const collegeReq = 30;
+        let collegeStatus = creditsMap["院基礎"] >= collegeReq 
+            ? `<span class="status-ok">已達成 (${creditsMap["院基礎"]}/${collegeReq})</span>` 
+            : `<span class="status-missing">尚缺 ${collegeReq - creditsMap["院基礎"]} 學分</span>`;
+        reqList.innerHTML += `<li><strong>院基礎：</strong> ${collegeStatus}</li>`;
+
+        // 3. 系定必修 (35學分)
+        const deptReq = 35;
+        let deptStatus = creditsMap["系定必修"] >= deptReq 
+            ? `<span class="status-ok">已達成 (${creditsMap["系定必修"]}/${deptReq})</span>` 
+            : `<span class="status-missing">尚缺 ${deptReq - creditsMap["系定必修"]} 學分 (加上大四未修畢學分即可達成)</span>`;
+        reqList.innerHTML += `<li><strong>系定必修：</strong> ${deptStatus}</li>`;
+
+        // 4. 核心/模組 (15學分)
+        const coreReq = 15;
+        let coreStatus = creditsMap["核心/模組"] >= coreReq 
+            ? `<span class="status-ok">已達成 (包含 2門模組、3門同組核心)</span>` 
+            : `<span class="status-missing">尚缺 ${coreReq - creditsMap["核心/模組"]} 學分</span>`;
+        reqList.innerHTML += `<li><strong>核心/模組：</strong> ${coreStatus}</li>`;
+        
+        // 其他選修 (22學分) - 計算方式: 總學分(134)扣除 必修(20+30+35=85) 和 核心模組(15) 和 通識(12) 剩餘 22 學分。 
+        const otherReq = 22;
+        let otherStatus = creditsMap["其他選修"] >= otherReq
+            ? `<span class="status-ok">已達成 (${creditsMap["其他選修"]}/${otherReq})</span>`
+            : `<span class="status-missing">尚缺 ${otherReq - creditsMap["其他選修"]} 學分 (目前已修畢 ${creditsMap["其他選修"]} 學分)</span>`;
+        reqList.innerHTML += `<li><strong>其他選修：</strong> ${otherStatus}</li>`;
+
+        // 5. 通識 (12學分 - 人文4, 自然4, 社會4, 歷史2)
+        let genEdMsg = [];
+        if (genEd.humanities < 4) genEdMsg.push(`人文領域差 ${4 - genEd.humanities} 學分`);
+        if (genEd.nature < 4) genEdMsg.push(`自然領域差 ${4 - genEd.nature} 學分`);
+        if (genEd.social < 4) genEdMsg.push(`社會領域差 ${4 - genEd.social} 學分`);
+        if (genEd.history < 2) genEdMsg.push(`歷史學群差 ${2 - genEd.history} 學分`);
+        
+        let genEdStatus = genEdMsg.length === 0 && creditsMap["通識"] >= 12
+            ? `<span class="status-ok">已達成</span>`
+            : `<span class="status-missing">${genEdMsg.join("、")}</span>`;
+        reqList.innerHTML += `<li><strong>通識課程：</strong> ${genEdStatus}</li>`;
+
+        // 6. 全英課程 (5門)
+        const engReq = 5;
+        let engStatus = englishCoursesCount >= engReq
+            ? `<span class="status-ok">已達成 (${englishCoursesCount} 門)</span>`
+            : `<span class="status-missing">尚缺 ${engReq - englishCoursesCount} 門全英課程</span>`;
+        reqList.innerHTML += `<li><strong>全英專業課程：</strong> ${engStatus}</li>`;
+
+        // 7. 英文檢定門檻
+        reqList.innerHTML += `<li><strong>英文檢定門檻：</strong> <span class="status-ok">已報名系上自學課程代替</span></li>`;
+    }
+
+    function addCourse() {
+        const cat = document.getElementById("course-category").value;
+        const sem = document.getElementById("course-semester").value;
+        const name = document.getElementById("course-name").value;
+        const cred = parseFloat(document.getElementById("course-credits").value);
+        const status = document.getElementById("course-status").value;
+
+        if (!sem || !name || isNaN(cred)) {
+            alert("請完整填寫所有欄位！");
+            return;
+        }
+
+        coursesData.push({
+            category: cat,
+            semester: sem,
+            name: name,
+            credits: cred,
+            status: status
+        });
+
+        document.getElementById("course-semester").value = "";
+        document.getElementById("course-name").value = "";
+        document.getElementById("course-credits").value = "2";
+
+        renderUI();
+    }
+
+    function removeCourse(index) {
+        if (confirm("確定要刪除這筆紀錄嗎？")) {
+            coursesData.splice(index, 1);
+            renderUI();
+        }
+    }
+
+    // 初始渲染
+    renderUI();
+</script>
+
 </body>
 </html>
